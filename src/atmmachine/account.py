@@ -24,7 +24,7 @@ class Account:
                 }
 
                 # updating account data file for adding new account.
-                json.dump(accounts)
+                json.dump(accounts, fp)
             else:
                 self.__account = accounts[self.__account_no]
 
