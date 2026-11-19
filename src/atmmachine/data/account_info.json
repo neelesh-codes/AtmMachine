@@ -1,7 +1,8 @@
 {
     "1": {
-        "name": "Neelesh Giroh",
-        "account pin": 8994,
+        "account_no": 1,
+        "account_name": "Neelesh Giroh",
+        "account_pin": 8994,
         "balance": 2000
     }
 }

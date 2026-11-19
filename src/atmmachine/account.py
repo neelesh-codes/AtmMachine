@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 """
 HACK: Data structure of json file
@@ -15,6 +15,7 @@ account_no:{
 @dataclass
 class _AccountCore:
     """documentation here (basic data structure for all accounts)"""
+
     # fundamental block of all upcoming classes.
 
     account_no: int
@@ -23,23 +24,41 @@ class _AccountCore:
     balance: int
 
 
-class Bank:
+class _Bank:
     """documentation here"""
 
     def __init__(self) -> None:
         # json file of accounts
         self.__account_fp = open("data\\account_info.json")
 
-    def add_account(self, account_data: _AccountCore):
-        """documentation here (adds another account to data file.)"""
-        account_file_data = json.load(self.__account_fp)
-        acc_no = account_data.account_no
-        account_file_data[acc_no] = acc_no
-        account_file_data[acc_no]["name"] = account_data.account_name
-        account_file_data[acc_no]["account_pin"] = account_data.account_pin
-        account_file_data[acc_no]["balance"] = account_data.balance
+    def check_account_existence(self, account_no) -> bool:
+        """documentation here (checks the existence of an account)"""
+        accounts = json.load(self.__account_fp)
 
-        # TODO: complete Bank
+        return account_no in accounts
+
+    def get_account_data(self, account_no: int) -> _AccountCore:
+        """documentation here (get data of an account"""
+
+        if not self.check_account_existence(account_no):
+            raise NameError("Account does not exists")
+
+        account_data = json.load(self.__account_fp)[account_no]
+        account = _AccountCore(**account_data)
+        return account
+
+    def add_account(self, account: _AccountCore):
+        if self.check_account_existence(account.account_no):
+            raise NameError("Account already exists")
+
+        accounts = json.load(self.__account_fp)
+
+        account_dict = asdict(account)
+        accounts[account.account_no] = account_dict
+
+        json.dump(accounts, self.__account_fp)
+        
+
 
     def __delete__(self, instance):
         """destructor, closes the file"""
@@ -47,6 +66,10 @@ class Bank:
 
     # TODO: after bank proceed to Account.
 
+
+# extra -->
+# Unused part intended to cover in future
+# don't look over here 😊😊.
 class Account:
     # TODO: make the class more abstract by shifiting data managing to <_Bank> and <_AccountCore>
     # This class is useless till now, progress will be after bank.
@@ -99,5 +122,4 @@ class Account:
     def set_balanace(self, new_balance):
         self.__balance = new_balance  # change the current balance
 
-        # TODO: finish later
-
+    # TODO: finish later
