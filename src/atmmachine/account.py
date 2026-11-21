@@ -1,5 +1,6 @@
 import json
-from dataclasses import dataclass, asdict
+import pathlib
+from dataclasses import asdict, dataclass
 
 """
 HACK: Data structure of json file
@@ -13,7 +14,7 @@ account_no:{
 
 # main structure defination of accounts
 @dataclass
-class _AccountCore:
+class AtmAccount:
     """documentation here (basic data structure for all accounts)"""
 
     # fundamental block of all upcoming classes.
@@ -29,97 +30,74 @@ class _Bank:
 
     def __init__(self) -> None:
         # json file of accounts
-        self.__account_fp = open("data\\account_info.json")
+        self.file_path = pathlib.Path("data") / "account_info.json"
+        self.account_fp = open(self.file_path)
 
     def check_account_existence(self, account_no) -> bool:
         """documentation here (checks the existence of an account)"""
-        accounts = json.load(self.__account_fp)
+        accounts = json.load(self.account_fp)
 
         return account_no in accounts
 
-    def get_account_data(self, account_no: int) -> _AccountCore:
+    # FIX: fix the error description in end of the file
+
+    def get_account_data(self, account_no: int) -> AtmAccount:
         """documentation here (get data of an account"""
 
         if not self.check_account_existence(account_no):
             raise NameError("Account does not exists")
 
-        account_data = json.load(self.__account_fp)[account_no]
-        account = _AccountCore(**account_data)
+        account_data = json.load(self.account_fp)[account_no]
+        account = AtmAccount(**account_data)
         return account
 
-    def add_account(self, account: _AccountCore):
+    def add_account(self, account: AtmAccount):
         if self.check_account_existence(account.account_no):
             raise NameError("Account already exists")
 
-        accounts = json.load(self.__account_fp)
+        accounts = json.load(self.account_fp)
 
         account_dict = asdict(account)
         accounts[account.account_no] = account_dict
 
-        json.dump(accounts, self.__account_fp)
-        
-
+        json.dump(accounts, self.account_fp)
 
     def __delete__(self, instance):
         """destructor, closes the file"""
-        self.__account_fp.close()
+        self.account_fp.close()
 
     # TODO: after bank proceed to Account.
 
 
-# extra -->
-# Unused part intended to cover in future
-# don't look over here 😊😊.
-class Account:
-    # TODO: make the class more abstract by shifiting data managing to <_Bank> and <_AccountCore>
-    # This class is useless till now, progress will be after bank.
-
-    def __init__(
-        self, acc_name: str, acc_no: int, acc_pin: int, create_acc: bool = False
-    ):
-        self.__account_name = acc_name
-        self.__account_no = acc_no
-        self.__account_pin = acc_pin
-        self.__account = None
-        self.__balance = None
+class Account(_Bank):
+    def __init__(self, acc_no: int):
         super().__init__()
 
-        # account data file (data\account_info.json) -->
-        with open("data\\account_info.json", "w") as fp:
-            accounts = json.load(fp)
-
-            if self.__account_no in accounts:
-                raise NameError("Account no already found!")
-
-            if create_acc:
-                accounts[self.__account_no] = {
-                    "name": self.__account_name,
-                    "account pin": self.__account_pin,
-                }
-
-                # updating account data file for adding new account.
-                json.dump(accounts, fp)
-            else:
-                self.__account = accounts[self.__account_no]  # taken data from account
-                self.__balance = self.__account["balance"]
+        self.__account = self.get_account_data(acc_no)
 
     @property
     def get_account_name(self):
-        """getter for self.__account_name"""
-        return self.__account_name
+        return self.__account.account_name
 
-    @property
-    def get_account_no(self):
-        """getter form self.__account_no"""
-        return self.__account_no
 
-    @property
-    def get_balance(self):
-        """getter for self.__balance"""
-        return self.__balance
+"""
+Traceback (most recent call last):
+  File "d:\AtmMachine\src\atmmachine\test_account.py", line 10, in <module>
+    o_account = Account(1)
+  File "d:\AtmMachine\src\atmmachine\account.py", line 72, in __init__
+    super().__init__()
+    ~~~~~~~~~~~~~~~~^^
+  File "d:\AtmMachine\src\atmmachine\account.py", line 34, in __init__
+    self.account_fp = open(self.file_path)
+                      ~~~~^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data\\account_info.json'
+"""
 
-    @get_balance.setter
-    def set_balanace(self, new_balance):
-        self.__balance = new_balance  # change the current balance
-
-    # TODO: finish later
+# file not found maybe system path mistake, 😊😊
+# or some blunder done by you bastard in handling the paths
+# fix it, I trust you buddy ❤️
+# I've not completed my part but still
+# Ahoi and Mira you can focus on he UI fast
+# Ryuk design the network architecutre in your repo as fast as possible
+# Eya and me gonna implement it very soon
+# 👋👋
